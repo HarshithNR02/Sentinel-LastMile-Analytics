@@ -1,15 +1,36 @@
+# Secrets — NEVER commit
 .env
-.DS_Store
+.env.*
+*.pem
+
+# Python
 __pycache__/
 *.pyc
-*.pkl
-*.txt
+*.pyo
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# Models & data (too large, available via S3)
 models/
-drift_report.html
-notebooks/
+data/
+*.pkl
 *.parquet
 *.csv
-venv/
-.ipynb_checkpoints/
+mlflow.db
+mlruns/
+catboost_info/
+
+# Reports & logs
+drift_report.html
+sentinel_drift_report.html
 consumer/consumer.log
+*.log
+
+# IDE / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Internal notes (your private folder)
 informations/
