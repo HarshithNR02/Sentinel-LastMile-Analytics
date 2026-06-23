@@ -1,0 +1,15 @@
+.env
+.DS_Store
+__pycache__/
+*.pyc
+*.pkl
+*.txt
+models/
+drift_report.html
+notebooks/
+*.parquet
+*.csv
+venv/
+.ipynb_checkpoints/
+consumer/consumer.log
+informations/
