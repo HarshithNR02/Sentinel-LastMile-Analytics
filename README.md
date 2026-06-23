@@ -1,4 +1,3 @@
-cat > README.md << 'SENTINEL_README_EOF'
 # Sentinel — Last-Mile Delivery Disruption Intelligence
 
 End-to-end ML platform on **6M+ real deliveries** across 5 Chinese cities. Two models run in parallel — a supervised disruption classifier and an unsupervised anomaly detector — wrapped in a full production-style stack: streaming, serving, monitoring, and a hybrid AI assistant.
@@ -131,4 +130,3 @@ sentinel/
 Open to Data Scientist / ML Engineer / Data Analyst roles.
 
 [LinkedIn](https://www.linkedin.com/in/harshithnr/) · [GitHub](https://github.com/HarshithNR02)
-SENTINEL_README_EOF
