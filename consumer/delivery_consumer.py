@@ -7,23 +7,20 @@ from datetime import datetime
 from kafka import KafkaConsumer
 from sqlalchemy import create_engine, text
 
-# ---- MLOps #1: Structured logging (not just print) ----
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
     handlers=[logging.StreamHandler(),
-              logging.FileHandler("consumer.log")]   # logs persist to file
+              logging.FileHandler("consumer.log")]  
 )
 log = logging.getLogger("anomaly_consumer")
 
-# ---- Config ----
 KAFKA_BROKER = "localhost:9092"
 TOPIC = "deliveries"
 MODEL_PATH = "../../models/delivery_isolation_forest.pkl"
-MODEL_VERSION = "isoforest_v1_20260617"          # MLOps #2: version tracking
+MODEL_VERSION = "isoforest_v1_20260617"         
 DB_URL = "postgresql+psycopg2://sentinel:sentinel@localhost:5433/sentinel"
 
-# ---- Load model + DB connection ----
 iso = joblib.load(MODEL_PATH)
 engine = create_engine(DB_URL)
 log.info(f"Loaded model {MODEL_VERSION}, connected to Postgres")
@@ -48,7 +45,6 @@ consumer = KafkaConsumer(
 )
 log.info(f"Listening on '{TOPIC}'...")
 
-# ---- MLOps #4: stream metrics ----
 total, anomalies, errors = 0, 0, 0
 start_time = time.time()
 
@@ -57,7 +53,6 @@ for message in consumer:
         d = message.value
         total += 1
 
-        # ---- MLOps #3: measure scoring latency ----
         t0 = time.time()
         X = np.array([[d[f] for f in IF_FEATURES]])
         if_anomaly = (iso.predict(X)[0] == -1)
@@ -72,7 +67,6 @@ for message in consumer:
                 reasons.append('IF_flagged')
             reason_str = ', '.join(reasons)
 
-            # ---- MLOps #1 (persistence): write to Postgres ----
             with engine.connect() as conn:
                 conn.execute(text("""
                     INSERT INTO live_anomalies
@@ -92,7 +86,6 @@ for message in consumer:
                      f"speed={d['implied_speed_kmh']:.0f} reasons={reason_str} "
                      f"latency={latency_ms:.1f}ms")
 
-        # ---- MLOps #4: periodic metrics ----
         if total % 100 == 0:
             elapsed = time.time() - start_time
             rate = total / elapsed
@@ -100,7 +93,7 @@ for message in consumer:
                      f"errors={errors} throughput={rate:.1f}/s")
 
     except Exception as e:
-        # ---- MLOps #2: error handling — skip bad messages, don't crash ----
+
         errors += 1
         log.error(f"Failed to process message: {e}")
         continue

@@ -14,7 +14,6 @@ from rag.sentinel_rag import smart_answer
 
 st.set_page_config(page_title="Sentinel", layout="wide", initial_sidebar_state="collapsed")
 
-# ==================== RESOURCES ====================
 @st.cache_resource
 def get_engine():
     return create_engine("postgresql+psycopg2://sentinel:sentinel@localhost:5433/sentinel")
@@ -41,7 +40,6 @@ CITY_COORDS = {
     "Yantai": (37.4638, 121.4479),
 }
 
-# ==================== DATA LOADERS ====================
 @st.cache_data(ttl=60)
 def load_metrics():
     return pd.read_sql("""
@@ -83,7 +81,6 @@ def load_feed_sorted():
         LIMIT 500
     """, engine).to_dict("records")
 
-# ==================== STYLING ====================
 st.markdown("""
 <style>
     .stApp { background-color: #0E1116; }
@@ -117,11 +114,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ==================== HEADER ====================
 st.markdown('<div class="sentinel-header">SENTINEL</div>', unsafe_allow_html=True)
 st.markdown('<div class="sentinel-sub">Last-Mile Disruption & Anomaly Intelligence — 5 cities</div>', unsafe_allow_html=True)
 
-# ==================== METRIC STRIP ====================
 m = load_metrics()
 st.markdown(f"""
 <div class="metric-strip">
@@ -138,7 +133,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ==================== ROW 1: CHAT + MAP ====================
 left, right = st.columns([1, 1], gap="large")
 
 with left:
@@ -180,7 +174,6 @@ with right:
         map_style="mapbox://styles/mapbox/dark-v10",
         tooltip={"text":"{city}\nAnomaly rate: {anomaly_pct}%"}), use_container_width=True)
 
-# ==================== ROW 2: RISK CHECKER + INSIGHT ====================
 c1, c2 = st.columns([1, 1], gap="large")
 
 with c1:
@@ -238,12 +231,10 @@ with c2:
     st.bar_chart(chart_df, height=300, color=["#F85149","#3FB950"])
     st.markdown('<div style="font-size:0.7rem;color:#7D8590;">Inversion: Shanghai high disruption / low anomaly; Jilin the reverse.</div>', unsafe_allow_html=True)
 
-# ==================== ROW 3: LIVE FEED (starts at first date, streams forward) ====================
 st.markdown('<div class="panel-title">Live Anomaly Feed — Dataset Playback</div>', unsafe_allow_html=True)
 
 if "feed_data" not in st.session_state:
-    raw = load_feed_sorted()   # already sorted earliest-first by ds, accept_hour
-    # stamp each row with a steadily-increasing minute so times always move forward
+    raw = load_feed_sorted() 
     for i, rec in enumerate(raw):
         rec["disp_min"] = i % 60
     st.session_state.feed_data = raw

@@ -12,18 +12,15 @@ from openai import OpenAI
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
-# ---- Setup ----
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 client = OpenAI()
 engine = create_engine("postgresql+psycopg2://sentinel:sentinel@localhost:5433/sentinel")
 
-# Load pre-built FAISS index + knowledge base
 _INDEX_DIR = os.path.join(os.path.dirname(__file__), "faiss_index")
 faiss_index = faiss.read_index(os.path.join(_INDEX_DIR, "sentinel.index"))
 with open(os.path.join(_INDEX_DIR, "knowledge_base.json")) as f:
     knowledge_base = json.load(f)
 
-# ---- Schema ----
 SCHEMA = """
 Tables in the Sentinel logistics database:
 1. deliveries (4.5M rows): order_id (PK), city, courier_id, ds, accept_hour,
@@ -76,12 +73,10 @@ GENERAL:
 - LIMIT large result sets to 20 rows unless the user asks for all or a specific number.
 """
 
-# ---- Embedding ----
 def embed(texts):
     resp = client.embeddings.create(model="text-embedding-3-small", input=texts)
     return np.array([d.embedding for d in resp.data], dtype="float32")
 
-# ---- Text-to-SQL ----
 def text_to_sql(question):
     prompt = f"""You are a PostgreSQL expert. Write a SQL query to answer the question.
 {SCHEMA}
@@ -113,7 +108,6 @@ Answer in 2-3 sentences using ONLY these numbers. Do not invent information."""
         model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}], temperature=0.3
     ).choices[0].message.content.strip()
 
-# ---- FAISS RAG ----
 def retrieve(query, k=3):
     distances, indices = faiss_index.search(embed([query]), k)
     return [knowledge_base[i] for i in indices[0]]
@@ -130,7 +124,6 @@ Answer:"""
         model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}], temperature=0.3
     ).choices[0].message.content.strip()
 
-# ---- Router ----
 def smart_answer(question):
     classify = client.chat.completions.create(
         model="gpt-4o-mini", temperature=0, max_tokens=10,

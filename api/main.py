@@ -7,14 +7,12 @@ import pandas as pd
 import logging
 import time
 
-# ---------------- Logging setup ----------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
 )
 logger = logging.getLogger("sentinel-api")
 
-# ---------------- Model loading (with lifespan) ----------------
 ml_models = {}
 
 @asynccontextmanager
@@ -47,7 +45,6 @@ MODEL_FEATURES = ['hour_of_day','courier_orders_so_far','day_of_week','accept_di
 
 VALID_CITIES = {"Shanghai", "Hangzhou", "Chongqing", "Jilin", "Yantai"}
 
-# ---------------- Request / Response models ----------------
 class PickupRequest(BaseModel):
     courier_id: int = Field(..., ge=0, description="Courier ID")
     city: str = Field(..., description="City name (Shanghai, Hangzhou, Chongqing, Jilin, Yantai)")
@@ -62,7 +59,6 @@ class PredictionResponse(BaseModel):
     risk_level: str = Field(..., description="high / medium / low (percentile-based)")
     features_source: str = Field(..., description="feature_store or global_fallback")
 
-# ---------------- Feature assembly ----------------
 def build_features(req: PickupRequest, store: dict):
     g = store['global']
     courier = store['courier'].get(req.courier_id, {})
@@ -90,7 +86,6 @@ def build_features(req: PickupRequest, store: dict):
         'city': req.city,
     }
 
-# ---------------- Endpoints ----------------
 @app.get("/")
 def root():
     return {
@@ -111,7 +106,6 @@ def health():
 def predict(req: PickupRequest):
     start = time.time()
 
-    # Validate city (clean 422-style error rather than silent bad prediction)
     if req.city not in VALID_CITIES:
         raise HTTPException(
             status_code=400,
