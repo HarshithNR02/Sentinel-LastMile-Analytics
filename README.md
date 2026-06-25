@@ -2,8 +2,8 @@
 
 End-to-end ML platform on **6M+ real deliveries** across 5 Chinese cities. Two models run in parallel — a supervised disruption classifier and an unsupervised anomaly detector — wrapped in a full production-style stack: streaming, serving, monitoring, and a hybrid AI assistant.
 
-🔗 **Live API:** http://3.92.4.253:8000/docs
-🔗 **Live Dashboard:** http://3.92.4.253:8501
+🔗 **Live API:** http://54.174.122.16:8000/docs
+🔗 **Live Dashboard:** http://54.174.122.16:8501
 
 > Dataset: [Cainiao LaDe](https://huggingface.co/datasets/Cainiao-AI/LaDe) (Alibaba, 2022) — 6.1M pickups + 4.5M deliveries across Shanghai, Hangzhou, Chongqing, Yantai, Jilin.
 
