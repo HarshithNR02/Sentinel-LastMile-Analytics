@@ -4,9 +4,8 @@ import numpy as np
 import sys, os
 import lightgbm as lgb
 import joblib
-import random
 import pydeck as pdk
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import create_engine
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -56,18 +55,6 @@ def load_city_data():
     anom = pd.read_sql("SELECT city, total_deliveries, anomaly_pct FROM city_summary", engine)
     disr = pd.read_sql("SELECT city, AVG(is_disrupted)*100 AS disruption_pct FROM pickups GROUP BY city", engine)
     return anom.merge(disr, on="city", how="outer")
-
-@st.cache_data(ttl=30)
-def load_feed():
-    return pd.read_sql("""
-        SELECT a.order_id, d.city, a.reason,
-               ROUND(d.delivery_duration_min::numeric,0) AS duration_min,
-               ROUND(d.implied_speed_kmh::numeric,0) AS speed_kmh
-        FROM delivery_anomalies a
-        JOIN deliveries d ON a.order_id = d.order_id
-        ORDER BY RANDOM()
-        LIMIT 300
-    """, engine)
 
 @st.cache_data(ttl=60)
 def load_feed_sorted():
@@ -210,8 +197,12 @@ with c1:
             'orders_per_courier': courier.get('orders_per_courier',0), 'city': in_city,
         }
         X = pd.DataFrame([feat])[MODEL_FEATURES]
-        for col in ['city','day_of_week','hour_of_day']:
-            X[col] = X[col].astype('category')
+        city_cats = pd.CategoricalDtype(categories=["Shanghai","Hangzhou","Chongqing","Jilin","Yantai"], ordered=False)
+        dow_cats  = pd.CategoricalDtype(categories=list(range(7)), ordered=False)
+        hour_cats = pd.CategoricalDtype(categories=list(range(24)), ordered=False)
+        X['city']        = X['city'].astype(city_cats)
+        X['day_of_week'] = X['day_of_week'].astype(dow_cats)
+        X['hour_of_day'] = X['hour_of_day'].astype(hour_cats)
         score = float(pickup_model.predict(X)[0])
         level = "HIGH" if score>=0.768 else "MEDIUM" if score>=0.646 else "LOW"
         color = "#F85149" if level=="HIGH" else "#D29922" if level=="MEDIUM" else "#3FB950"

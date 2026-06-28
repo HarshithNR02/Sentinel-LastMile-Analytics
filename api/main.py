@@ -117,8 +117,12 @@ def predict(req: PickupRequest):
         model = ml_models["model"]
         feat = build_features(req, store)
         X = pd.DataFrame([feat])[MODEL_FEATURES]
-        for c in ['city', 'day_of_week', 'hour_of_day']:
-            X[c] = X[c].astype('category')
+        city_cats = pd.CategoricalDtype(categories=["Shanghai","Hangzhou","Chongqing","Jilin","Yantai"], ordered=False)
+        dow_cats  = pd.CategoricalDtype(categories=list(range(7)), ordered=False)
+        hour_cats = pd.CategoricalDtype(categories=list(range(24)), ordered=False)
+        X['city']        = X['city'].astype(city_cats)
+        X['day_of_week'] = X['day_of_week'].astype(dow_cats)
+        X['hour_of_day'] = X['hour_of_day'].astype(hour_cats)
 
         risk = float(model.predict(X)[0])
         level = "high" if risk >= 0.768 else "medium" if risk >= 0.646 else "low"
@@ -139,5 +143,5 @@ def predict(req: PickupRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Prediction failed for courier={req.courier_id}: {e}")
+        logger.exception(f"Prediction failed for courier={req.courier_id}")
         raise HTTPException(status_code=500, detail="Internal prediction error")

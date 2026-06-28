@@ -109,8 +109,9 @@ Answer in 2-3 sentences using ONLY these numbers. Do not invent information."""
     ).choices[0].message.content.strip()
 
 def retrieve(query, k=3):
+    DISTANCE_THRESHOLD = 1.2
     distances, indices = faiss_index.search(embed([query]), k)
-    return [knowledge_base[i] for i in indices[0]]
+    return [knowledge_base[i] for i, d in zip(indices[0], distances[0]) if d < DISTANCE_THRESHOLD]
 
 def ask_rag(question, k=3):
     context = "\n\n".join(retrieve(question, k))
