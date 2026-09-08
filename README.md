@@ -133,4 +133,4 @@ sentinel/
 **Harshith Nerlikere Ramesh** — MS Data Science, UMass Dartmouth (Aug 2026)
 Open to Data Scientist / ML Engineer / Data Analyst roles.
 
-[LinkedIn](https://www.linkedin.com/in/harshithnr/) · [GitHub](https://github.com/HarshithNR02)
+[LinkedIn](https://www.linkedin.com/in/harshithnr2002) · [GitHub](https://github.com/HarshithNR02)
