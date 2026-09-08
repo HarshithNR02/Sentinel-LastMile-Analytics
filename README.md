@@ -4,6 +4,8 @@ End-to-end ML platform on **6M+ real deliveries** across 5 Chinese cities. Two m
 
 🔗 **Live API:** http://54.174.122.16:8000/docs
 🔗 **Live Dashboard:** http://54.174.122.16:8501
+🔗 **Tableau Dashboards:** https://public.tableau.com/app/profile/harshith.nerlikere.ramesh/vizzes
+🔗 **Power BI Report:** https://app.powerbi.com/links/DBMy7T90JZ
 
 > Dataset: [Cainiao LaDe](https://huggingface.co/datasets/Cainiao-AI/LaDe) (Alibaba, 2022) — 6.1M pickups + 4.5M deliveries across Shanghai, Hangzhou, Chongqing, Yantai, Jilin.
 
@@ -45,15 +47,16 @@ End-to-end ML platform on **6M+ real deliveries** across 5 Chinese cities. Two m
 
 | Component | Tech | What it does |
 |---|---|---|
-| **Pickup Disruption Model** | LightGBM, Optuna | Supervised. Predicts if a pickup will miss its time window. PR-AUC 0.22 at 1.82% base rate (12x lift). |
+| **Pickup Disruption Model** | LightGBM, Optuna | Supervised. Predicts if a pickup will miss its time window. PR-AUC 0.22 at 1.82% base rate (12.2x lift over baseline). |
 | **Delivery Anomaly Detection** | Isolation Forest + rules | Unsupervised. Flags abnormal deliveries (ghost dispatches, impossible speeds, extreme durations). 66K anomalies surfaced from 4.5M deliveries. |
 | **REST API** | FastAPI, Pydantic, boto3 | Model-serving API with a feature-store lookup. Validated input, typed responses, structured logging, `/health` endpoint. Deployed on AWS EC2 with models in S3. |
 | **Streaming** | Kafka, Postgres | Producer streams deliveries to a Kafka topic; consumer scores them with the anomaly model and persists predictions with latency tracking. |
-| **SQL Analytics** | PostgreSQL | Window functions, CTEs, indexing (29x speedup verified), partitioning by month, SCD Type 2 for couriers. 5 normalized tables. |
+| **SQL Analytics** | PostgreSQL | Window functions, CTEs, indexing, partitioning by month, SCD Type 2 for couriers. 5 normalized tables. |
 | **Hybrid AI Assistant** | OpenAI, LangChain, FAISS, Text-to-SQL | Routes natural-language questions: SQL queries to live Postgres; conceptual questions to FAISS RAG over a curated knowledge base. |
 | **A/B Testing** | scipy, statsmodels | Simulated randomized controlled trial. Two-proportion z-test + sensitivity analysis across intervention strengths. |
 | **Drift Monitoring** | Evidently | Compares training-period vs current-period feature distributions. Wasserstein distance. Distinguishes expected drift (tenure accumulation) from operational drift. |
 | **Dashboard** | Streamlit, pydeck, Mapbox | Live operational view: metrics, city anomaly map, AI chat, risk checker, two-model comparison, anomaly feed. |
+| **BI Dashboards** | Tableau, Power BI | 3 published Tableau dashboards and a 3-page Power BI report covering disruption intelligence, anomaly deep-dive, and courier watchlist. |
 
 ---
 
@@ -66,6 +69,7 @@ End-to-end ML platform on **6M+ real deliveries** across 5 Chinese cities. Two m
 **Data:** PostgreSQL, Kafka, Parquet
 **Cloud:** AWS (EC2, S3, IAM)
 **Apps:** Streamlit, Pydeck
+**Visualization:** Tableau, Power BI
 
 ---
 
